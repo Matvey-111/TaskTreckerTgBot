@@ -71,7 +71,7 @@ namespace TgBotTask.Handelers
                 using(var scoped = _serviceProvider.CreateScope())
                 {
                     var crud = scoped.ServiceProvider.GetRequiredService<TaskCrud>();
-                    await crud.AddTask(session.Task);
+                    await crud.AddTask(session.Task, chatId);
                 }
 
 

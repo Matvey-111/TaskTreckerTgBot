@@ -50,7 +50,7 @@ namespace TgBotTask.Handelers
                         using (var scop = _serviceProvider.CreateScope())
                         {
                             var getTask = scop.ServiceProvider.GetRequiredService<TaskCrud>();
-                            getTask.DeleteTask(taskId);
+                            getTask.DeleteTask(taskId,chatId);
                         }
                         sessions.TryRemove(chatId, out _);
                         
@@ -64,30 +64,7 @@ namespace TgBotTask.Handelers
 
                     break;
 
-                case "CompleatOrUncompleat":
-
-                    if (message.Text.ToLower() == "задача выполнена")
-                    {
-                        using (var scop = _serviceProvider.CreateScope())
-                        {
-                            var getTask = scop.ServiceProvider.GetRequiredService<TaskCrud>();
-
-                            getTask.DeleteTask(taskId);
-
-
-                            await client.SendMessage(chatId: chatId, text: "Задача была убрана", replyMarkup: buttons.MainMenu());
-
-                            
-                        }
-                    }
-                    else
-                    {
-
-                        sessions.TryRemove(chatId, out _);
-                        await client.SendMessage(chatId: chatId, text: "Главное меню", replyMarkup: buttons.MainMenu());
-                    }
-                    break;
-
+               
             }
         }
     }

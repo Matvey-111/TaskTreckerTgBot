@@ -15,11 +15,12 @@ namespace TgBotTask.Handelers
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly Buttons buttons;
-
-        public TasksCompleatingHandler(IServiceProvider serviceProvider, Buttons buttons)
+        private readonly ShowTask showTask;
+        public TasksCompleatingHandler(IServiceProvider serviceProvider, Buttons buttons, ShowTask showTask)
         {
             _serviceProvider = serviceProvider;
             this.buttons = buttons;
+            this.showTask = showTask;
         }
 
         public async Task HandleSessionAsync(ITelegramBotClient client, Message message, UserTaskSession session, ConcurrentDictionary<long, UserTaskSession> sessions) 
@@ -31,15 +32,9 @@ namespace TgBotTask.Handelers
             switch (session.CurrentStep)
             {
                 case "ReturnAllTasks":
-                  
 
-                    using(var scop = _serviceProvider.CreateScope())
-                    {
-                        var getTasks = scop.ServiceProvider.GetRequiredService<ShowTask>();
-                        var allTasksWithId = getTasks.ShowAllTasksWithId(client, chatId).ToString();
 
-                        await client.SendMessage(chatId: chatId, text: allTasksWithId);
-                    }
+                    await showTask.ShowAllTasksWithId(client, chatId);
                     session.CurrentStep = "GetNumberOfTask";
                     await client.SendMessage(chatId, "Введите номер задачи которую хотите выполнить");
                     break;
@@ -51,7 +46,7 @@ namespace TgBotTask.Handelers
                         using (var scop = _serviceProvider.CreateScope())
                         {
                             var getTask = scop.ServiceProvider.GetRequiredService<TaskCrud>();
-                            var taskById = getTask.GetTaskById(taskId).ToString();
+                            var taskById = getTask.GetTaskById(taskId, chatId).ToString();
 
                             await client.SendMessage(chatId: chatId, text: taskById);
                         }
@@ -75,7 +70,7 @@ namespace TgBotTask.Handelers
                         {
                             var getTask = scop.ServiceProvider.GetRequiredService<TaskCrud>();
 
-                            getTask.DeleteTask(taskId);
+                            getTask.DeleteTask(taskId, chatId);
 
 
                             await client.SendMessage(chatId: chatId, text: "Задача была убрана", replyMarkup: buttons.MainMenu());

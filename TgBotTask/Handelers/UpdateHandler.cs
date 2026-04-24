@@ -46,6 +46,15 @@ namespace TgBotTask.Handelers
                 switch (messege.Text.ToString().ToLower())
                 {
                     case "запуск" or "/start":
+                        var scope = _serviceProvider.CreateScope();
+                        var crud = scope.ServiceProvider.GetRequiredService<UserCrud>();
+
+                        if (!await crud.UserExists(chatId))
+                        {
+                            await crud.AddUser(chatId, messege.From.Username);
+                        }
+                       
+
                         var start = buttons.StartMenu();
                         await client.SendMessage(
                             chatId: messege.Chat.Id,
@@ -75,10 +84,9 @@ namespace TgBotTask.Handelers
 
                     case "посмотреть все задачи":
 
-                        using (var scope = _serviceProvider.CreateScope())
-                        {
+                        
                             await showTask.ShowAllTasks(client, chatId);
-                        }
+                        
                         break;
 
 
@@ -88,6 +96,7 @@ namespace TgBotTask.Handelers
                         {
                             CurrentStep = "ReturnAllTasks"
                         };
+                        await client.SendMessage(chatId, "Список задач");
 
                         break;
 

@@ -16,28 +16,37 @@ namespace TgBotTask.Services
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<TaskModel>> GetAllTask()
+        public async Task<IEnumerable<TaskModel>> GetAllTask(long chatId)
         {
-            return await _dbContext.Tasks.ToListAsync();
+            return await _dbContext.Tasks.Where(u => u.UserChatId == chatId).ToListAsync();
         }
 
-        public async Task<TaskModel> GetTaskById(int id)
+        public async Task<TaskModel> GetTaskById(int id, long chatId)
         {
-            var task = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            var task = await _dbContext.Tasks.Where(u => u.UserChatId == chatId).FirstOrDefaultAsync(t => t.Id == id);
             return task;
         }
 
 
-        public async Task AddTask(TaskModel task)
+        public async Task AddTask(TaskModel task, long chatId)
         {
+            var user = await _dbContext.Users.Include(u => u.Tasks).FirstOrDefaultAsync(u => u.ChatId == chatId);
 
-            await _dbContext.Tasks.AddAsync(task);
-            await _dbContext.SaveChangesAsync();
+            if(user != null)
+            {
+                user.Tasks.Add(task);
+                await _dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                Console.WriteLine("Пользователь не найден");
+            }
+            
         }
 
-        public async Task UpdateTask(TaskModel task, int id)
+        public async Task UpdateTask(TaskModel task, int id, long chatId)
         {
-            var taskModel = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            var taskModel = await _dbContext.Tasks.Where(u => u.UserChatId == chatId).FirstOrDefaultAsync(t => t.Id == id);
 
             taskModel = task;
 
@@ -46,9 +55,9 @@ namespace TgBotTask.Services
 
         }
 
-        public async void DeleteTask(int id)
+        public async void DeleteTask(int id, long chatId)
         {
-            var taskToDelete = await _dbContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+            var taskToDelete = await _dbContext.Tasks.Where(u => u.UserChatId == chatId).FirstOrDefaultAsync(t => t.Id == id);
 
             if (taskToDelete != null)
             {

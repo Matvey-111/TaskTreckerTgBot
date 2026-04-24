@@ -36,6 +36,7 @@ public class Program
 
 
         builder.Services.AddScoped<TaskCrud>();
+        builder.Services.AddScoped<UserCrud>();
         builder.Services.AddScoped<ShowTask>();
 
         builder.Services.AddSingleton<UpdateHandler>();
