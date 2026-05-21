@@ -8,7 +8,7 @@ namespace TgBotTask.Models
     {
         public int Id { get; set; } 
         public long ChatId { get; set; } 
-        public string Username { get; set; }    
+        public string? Username { get; set; }    
         public List<TaskModel> Tasks { get; set; } = new();
     }
 }

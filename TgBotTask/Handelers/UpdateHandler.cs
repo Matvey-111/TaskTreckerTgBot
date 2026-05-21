@@ -76,7 +76,7 @@ namespace TgBotTask.Handelers
 
                     case "добавить задачу":
 
-                        userSessions[chatId] = new UserTaskSession(); // Создаем новую сессию
+                        userSessions[chatId] = new UserTaskSession { CurrentStep = "Name" }; // Создаем новую сессию
                         await client.SendMessage(chatId, "Введите название задачи:");
 
                         break;
@@ -92,20 +92,23 @@ namespace TgBotTask.Handelers
 
                     case "перейти к выполнению задач":
 
-                        userSessions[chatId] = new UserTaskSession()
-                        {
-                            CurrentStep = "ReturnAllTasks"
-                        };
+                        userSessions[chatId] = new UserTaskSession { CurrentStep = "ReturnAllTasks" };
+
+
+
+
                         await client.SendMessage(chatId, "Список задач");
 
                         break;
 
                     case "Удалить задачу":
 
-                        userSessions[chatId] = new UserTaskSession()
+                        userSessions[chatId] = new UserTaskSession
                         {
                             CurrentStep = "AllTasks"
                         };
+                        await client.SendMessage(chatId, "Вы перешли в режим удаления.");
+
 
                         break;
 

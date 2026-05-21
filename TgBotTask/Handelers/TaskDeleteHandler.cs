@@ -14,11 +14,13 @@ namespace TgBotTask.Handelers
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly Buttons buttons;
+        private readonly ShowTask showTask;
 
-        public TaskDeleteHandler(IServiceProvider serviceProvider, Buttons buttons)
+        public TaskDeleteHandler(IServiceProvider serviceProvider, Buttons buttons, ShowTask showTask)
         {
             _serviceProvider = serviceProvider;
             this.buttons = buttons;
+            this.showTask = showTask;
         }
 
         public async Task HandleSessionAsync(ITelegramBotClient client, Message message, UserTaskSession session, ConcurrentDictionary<long, UserTaskSession> sessions)
@@ -32,13 +34,12 @@ namespace TgBotTask.Handelers
                 case "AllTasks":
 
 
-                    using (var scop = _serviceProvider.CreateScope())
-                    {
-                        var getTasks = scop.ServiceProvider.GetRequiredService<ShowTask>();
-                        var allTasksWithId = getTasks.ShowAllTasksWithId(client, chatId).ToString();
+                   
+                        var allTasksWithId = showTask.ShowAllTasksWithId(client, chatId).ToString();
 
                         await client.SendMessage(chatId: chatId, text: allTasksWithId);
-                    }
+                    
+
                     session.CurrentStep = "NumberOfTask";
                     await client.SendMessage(chatId, "Введите номер задачи которую хотите удалить");
                     break;
